@@ -11,14 +11,14 @@ def determineCowsBulls(targetArray, playerArray):
     bullIndices =  []
 
     # Count "bulls" (digits occuring at the same index in both arrays) and store the index to avoid counting them as "cows" later.
-    for digit in range(len(playerArray)):
+    for digit in range(NUMBER_LENGTH):
 
         if playerArray[digit] == targetArray[digit]:
             bulls = bulls + 1;
             bullIndices.append(digit)
      
     # Count "cows" (digits occurring at any index in the targetArray but which weren't a "bull").
-    for digit in range(len(playerArray)):
+    for digit in range(NUMBER_LENGTH):
 
         if (not digit in bullIndices) and (playerArray[digit] in targetArray):
             cows = cows + 1
@@ -31,6 +31,7 @@ def intToArray(intNumber):
     array = []
     for i in range(len(numberAsString)):
         array.append(numberAsString[i])
+        
     return array
  
  
@@ -39,6 +40,7 @@ def generateTargetNumber():
     minTargetValue = pow(10,NUMBER_LENGTH - 1)
     # Largest number with NUMBER_LENGTH digits. E.g. for NUMBER_LENGTH 4 we do 10^4-1 = 9999
     maxTargetValue = pow(10,NUMBER_LENGTH) - 1
+    
     return random.randint(minTargetValue, maxTargetValue)
 
 
@@ -53,6 +55,7 @@ def gameLoop(targetNumber = generateTargetNumber()):
     while guessing:
         playerInput = input("Your guess: ")
         if playerInput == "q":
+            print("Bye!")
             return
         
         playerArray = intToArray(playerInput)
