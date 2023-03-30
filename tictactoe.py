@@ -131,7 +131,10 @@ def checkWinCondition(grid):
     if (winner != None):
         return winner
 
-    topRightToBottomLeftTotal = sum(grid[GRID_SIDE_LENGTH - 1 : GRID_CELL_NUMBER : GRID_SIDE_LENGTH + 1])
+    topRightToBottomLeftTotal = 0
+    for i in range(1, GRID_SIDE_LENGTH + 1):
+        cellIndex = i * (GRID_SIDE_LENGTH - 1)
+        topRightToBottomLeftTotal = topRightToBottomLeftTotal + grid[cellIndex]
     winner = evaluateWinner(topRightToBottomLeftTotal)
     if (winner != None):
         return winner
@@ -166,21 +169,13 @@ def generateAllMoveOutcomes(grid, movesRemaining, value):
                 break
     return moveOutcomes
 
-# def scorePotentialMoveOutcome(grid):
-
-# O O .
-# X . .
-# . . .
 
 def doComputerTurn(grid, movesRemaining):
     print(f'\n{COMPUTER_NAME}\'s turn...thinking...')
     time.sleep(0.5)
     
     potentialMoves = generateAllMoveOutcomes(grid, movesRemaining, COMPUTER_VALUE)
-    # potentialPlayerMoves = generateAllMoveOutcomes(grid, movesRemaining, PLAYER_SYMBOL)
-
-    # scorePotentialComputerMoves(potentialMovesOutcomes, movesRemaining, COMPUTER_SYMBOL)
-
+   
     # Check whether any of the moves result in an outright win, if so, take that move.
     for i in range(len(potentialMoves)):
         victor = checkWinCondition(potentialMoves[i])
@@ -210,7 +205,6 @@ def gameLoop():
             grid = doPlayerTurn(grid)
         else:
             grid = doComputerTurn(grid, movesRemaining)
-            
             
         movesRemaining = movesRemaining - 1
         
