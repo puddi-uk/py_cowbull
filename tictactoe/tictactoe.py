@@ -15,7 +15,7 @@ PLAYER_SYMBOL   = "O"
 COMPUTER_SYMBOL = "X"
 
 BLANK_VALUE    = 0
-PLAYER_VALUE   = GRID_SIDE_LENGTH
+PLAYER_VALUE   = 1
 COMPUTER_VALUE = GRID_SIDE_LENGTH + 1
 
 SYMBOL_DICTIONARY = {
@@ -24,8 +24,12 @@ SYMBOL_DICTIONARY = {
     COMPUTER_VALUE: COMPUTER_SYMBOL
 }
 
+PLAYER_PENULTIMATE_WIN_VALUE = (GRID_SIDE_LENGTH - 1) * PLAYER_VALUE
+
 PLAYER_WIN_LINE_VALUE   = GRID_SIDE_LENGTH * PLAYER_VALUE
 COMPUTER_WIN_LINE_VALUE = GRID_SIDE_LENGTH * COMPUTER_VALUE
+
+
 
 
 def drawGrid(grid):
@@ -108,6 +112,9 @@ def evaluateWinner(totalValue):
     else:
         return None
 
+def isNextTurnPlayerWin(totalValue):
+    return totalValue == PLAYER_PENULTIMATE_WIN_VALUE
+
 
 def checkWinCondition(grid):
     # Check rows and columns for a winner using array splitting.
@@ -142,6 +149,40 @@ def checkWinCondition(grid):
     return None
 
 
+def checkNextTurnWinCondition(grid):
+    # Check rows and columns for a winner using array splitting.
+    for i in range(GRID_SIDE_LENGTH):
+        # Slice from the index at the start of the column, end at the end of the grid.
+        # Step by GRID_SIDE_LENGTH as moving "down" the grid, indexes are not consecutive.
+        colTotal = sum(grid[i : GRID_CELL_NUMBER : GRID_SIDE_LENGTH])
+        if isNextTurnPlayerWin(colTotal):
+
+        # if (winner != None):
+        #     return winner
+
+        # Slice from the index at the start of the row, ending at the index at the end of the row (+ GRID_SIDE_LENGTH).
+        # Step by 1 as we're going along the row and thus along consecutive indexes.
+        rowTotal = sum(grid[i * GRID_SIDE_LENGTH : i * GRID_SIDE_LENGTH + GRID_SIDE_LENGTH : 1])
+        winner = evaluateWinner(rowTotal)
+        if (winner != None):
+            return winner
+
+    topLeftToBottomRightTotal = sum(grid[0 : GRID_CELL_NUMBER : GRID_SIDE_LENGTH + 1])
+    winner = evaluateWinner(topLeftToBottomRightTotal)
+    if (winner != None):
+        return winner
+
+    topRightToBottomLeftTotal = 0
+    for i in range(1, GRID_SIDE_LENGTH + 1):
+        cellIndex = i * (GRID_SIDE_LENGTH - 1)
+        topRightToBottomLeftTotal = topRightToBottomLeftTotal + grid[cellIndex]
+    winner = evaluateWinner(topRightToBottomLeftTotal)
+    if (winner != None):
+        return winner
+
+    return None
+
+
 def doPlayerTurn(grid):
     print(f'\n{PLAYER_NAME}\'s turn!')
 
@@ -152,7 +193,7 @@ def doPlayerTurn(grid):
         playerInput = readPlayerInput()
         newGrid = handleInput(playerInput, grid)
     
-    return grid
+    return newGrid
 
 def generateAllMoveOutcomes(grid, movesRemaining, value):
     moveOutcomes = []
@@ -170,18 +211,40 @@ def generateAllMoveOutcomes(grid, movesRemaining, value):
     return moveOutcomes
 
 
+def scorePotentialMoves(potentialMoves):
+    # Python 2D array syntax is so counter intuitive...numPy Matrix would be better.
+    scoredMoves = [None] * len(potentialMoves)
+    for i in range(potentialMoves):
+        scoredMoves[i] = [None] * 2
+
+    for i in range(potentialMoves):
+        scoredMoves[i][0] = scoreMove(potentialMoves[i])
+        scoredMoves[i][1] = potentialMoves[i]
+
+# Appalling logic, mainly as this is an array-centric solution. Just hacking something that works...
 def doComputerTurn(grid, movesRemaining):
     print(f'\n{COMPUTER_NAME}\'s turn...thinking...')
     time.sleep(0.5)
     
     potentialMoves = generateAllMoveOutcomes(grid, movesRemaining, COMPUTER_VALUE)
-   
-    # Check whether any of the moves result in an outright win, if so, take that move.
+
+     # Check whether any of the moves result in an outright win, if so, take that move.
     for i in range(len(potentialMoves)):
         victor = checkWinCondition(potentialMoves[i])
         if (victor == COMPUTER_NAME):
             return potentialMoves[i]
-    
+
+    # 
+    scoredPotentialMoves = scorePotentialMoves(potentialMoves)
+   
+   
+
+    # Check whether any of the moves leave the player able to win next turn.
+    safeMoves = []
+    for i in range(len(potentialMoves)):
+        if not isNextTurnPlayerWin(potentialMoves[i]):
+            safeMoves = []
+
     # No obvious winning move, play randomly.
     return random.choice(potentialMoves)
 
