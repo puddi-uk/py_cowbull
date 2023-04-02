@@ -51,46 +51,72 @@ def scoreDiagTLBR(grid):
 def scoreDiagTRBL(grid):
     total = 0
     for i in range(1, GRID_SIDE_LENGTH + 1):
-        cellIndex = i * (GRID_SIDE_LENGTH - 1)
-        total = total + grid[cellIndex]
+        cell = i * (GRID_SIDE_LENGTH - 1)
+        total = total + grid[cell]
     return total
 
-def calcCenterCellIndexes(grid):
-    centerCellIndexes = [] 
 
+def calcCenterCell(grid):
     halfSideLength = GRID_SIDE_LENGTH // 2 
     
-    # If the grid has an odd side length there is a single central cell.
-    if (GRID_SIDE_LENGTH % 2 != 0):
-        # halfSideLength is the depth (number of rows before the center row).
-        cellsInRowsAboveCenterRow = halfSideLength * GRID_SIDE_LENGTH
-        # halfSideLength is also the number of cells in a row before the center cell.
-        cellsInRowBeforeCenter = halfSideLength
-    # Else the grid has an even side length so there are multiple central cells.
+    # halfSideLength is the depth (number of rows before the center row).
+    cellsInRowsAboveCenterRow = halfSideLength * GRID_SIDE_LENGTH
+    # halfSideLength is also the number of cells in a row before the center cell.
+    cellsInRowBeforeCenterCell = halfSideLength
+    # The center cell index is thus all those in the rows above plus all those in the same row as the center cell which preceed the center cell itself.
+    return cellsInRowsAboveCenterRow + cellsInRowBeforeCenterCell
+
+
+def getBlankCells(grid):
+    blankCells = []
+    for cell in range(len(grid)):
+        if (grid[cell] == BLANK_CELL_VALUE):
+            blankCells.append(cell)
+    return blankCells
+
+
+# Iterate through the rows, generating the array of indexes in each, return the one containing the indexInRow.
+def getRowContainingCell(grid, targetCell):
+    for i in range(GRID_SIDE_LENGTH):
+        rowStartIndex = i * GRID_SIDE_LENGTH
+        # Note: Range will effectively apply a -1 to the GRID_SIDE_LENGTH implicitly, we don't need to account for it.
+        cellsInRow = grid[rowStartIndex : rowStartIndex + GRID_SIDE_LENGTH : 1]
+        if (targetCell in cellsInRow) :
+            return list(cellsInRow)
+        else:
+            return []
+
+
+def getColContainingCell(grid, targetCell):
+    for colStartIndex in range(GRID_SIDE_LENGTH):
+        cellsInCol = grid[colStartIndex : GRID_CELL_COUNT : GRID_SIDE_LENGTH]
+        if targetCell in cellsInCol:
+            return list(cellsInCol)
+        else:
+            return []
+
+
+def getTLBRDiagContainingCell(grid, targetCell):
+    tlbrCells = grid[0 : GRID_CELL_COUNT : GRID_SIDE_LENGTH + 1]
+    if (targetCell in tlbrCells):
+        return tlbrCells
     else:
+        return []
 
-    # Therefore the centreCellIndex is the number of cells in the rows above plus the number of cells in the center row preceeding it.
-    centerCellIndex = cellsInRowsAboveCenterRow + cellsInRowBeforeCenter
 
-def calculateMaximumScoreForGrid(grid):
-    maximumScore = 0
-    # Score rows/cols.
-    for i in range(GRID_SIDE_LENGTH):
-        score = scoreCol(grid, i)
-        if (score > maximumScore):
-            maximumScore = score
-    for i in range(GRID_SIDE_LENGTH):
-        score = scoreRow(grid, i)
-        if (score > maximumScore):
-            maximumScore = score
-    # Score diags.
-    score = scoreDiagTLBR(grid)
-    if (score > maximumScore):
-        maximumScore = score
-    score = scoreDiagTRBL(grid)
-    if (score > maximumScore):
-        maximumScore = score
-    return maximumScore
+def getTRBLDiagContainingCell(grid, targetCell): 
+    # Work out what the indexes are of cells along the diagonal.
+    trblCellIndexes = []
+    for i in range(1, GRID_SIDE_LENGTH + 1):
+        cellIndex = i * (GRID_SIDE_LENGTH - 1)
+        trblCellIndexes.append(cellIndex)
+
+    # If the targetCell is on this diagonal return the cell values of that diagonal.
+    tlbrCellValues = []
+    if targetCell in trblCellIndexes:
+        for i in range (len(trblCellIndexes)):
+            tlbrCellValues.append(grid[i])
+    return tlbrCellValues
 
 
 def getWinnerForScore(score):
@@ -102,9 +128,43 @@ def getWinnerForScore(score):
         return None
 
 
+def evaluateDiagsForWinner(grid):
+    winner = getWinnerForScore(scoreDiagTLBR(grid))
+    if (winner != None):
+        return winner
+    winner = getWinnerForScore(scoreDiagTRBL(grid))
+    if (winner != None):
+        return winner
+    return None
+
+
+def evaluateColsForWinner(grid):
+    for colNum in range(GRID_SIDE_LENGTH):
+        winner = getWinnerForScore(scoreCol(grid, colNum))
+        if (winner != None) :
+            return winner
+    return None
+        
+
+def evaluateRowsForWinner(grid):
+    for rowNum in range(GRID_SIDE_LENGTH):
+        winner = getWinnerForScore(scoreRow(grid, rowNum))
+        if (winner != None) :
+            return winner
+    return None
+        
+
 def getWinner(grid):
-    maximumScore = calculateMaximumScoreForGrid(grid)
-    return getWinnerForScore(maximumScore)
+    winner = evaluateRowsForWinner(grid)
+    if (winner != None):
+        return winner
+
+    winner = evaluateColsForWinner(grid)
+    if (winner != None):
+        return winner
+
+    winner = evaluateDiagsForWinner(grid)
+    return winner
 
 
 def init():

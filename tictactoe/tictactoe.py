@@ -69,6 +69,7 @@ def doHumanTurn(grid):
 
 def gameLoop():
     grid = grid_util.init()
+    
     isHumanTurn = random.choice([True, False])
     movesRemaining = GRID_CELL_COUNT
     
@@ -94,9 +95,13 @@ def gameLoop():
             grid_util.draw(grid)
             print("\nGame over! Result: Draw")
             return
-        # Else it is the next human's turn.
+        # Else it is the next player's turn.
         else:
-            #print("\nSwapping turns!")
             isHumanTurn = not isHumanTurn
 
-gameLoop()
+# It doesn't make sense to play on a 2x2 grid (or smaller) so bail out if so.
+if (GRID_SIDE_LENGTH < 3 or GRID_SIDE_LENGTH % 2 == 0):
+    print("Playing tic-tac-toe requires a grid with an odd numbered side length which must be 3 or greater. Update GRID_SIDE_LENGTH in constants.py")
+    exit(1)
+else: 
+    gameLoop()
