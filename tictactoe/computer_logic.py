@@ -111,33 +111,3 @@ def playInCell(grid, cell):
     newGrid = grid.copy()
     newGrid[cell] = COMPUTER_CELL_VALUE
     return newGrid
-
-
-# Generate all possible grids that can result of the computer taking its turn.
-def generatePotentialMoveOutcomes(grid, movesRemaining):
-    potentialMoveOutcomeGrids = []
-    
-    # Only need to check grids with valid moves, hence only those with moves remaining.
-    movesLeftToCheck  = movesRemaining
-
-    # While there are moves still to check...
-    nextCellToCheck = 0
-    while (movesLeftToCheck > 0):
-        # Step through the cells, starting at the next cell we should check (so we don't keep checking the same move).
-        for cell in range(nextCellToCheck, len(grid), 1):
-            # If the cell is blank, it's a potential legal move, so create a grid representing that more and store it.
-            if (grid[cell] == BLANK_CELL_VALUE):
-                newGrid = grid.copy()
-                newGrid[cell] = COMPUTER_CELL_VALUE
-                potentialMoveOutcomeGrids.append(newGrid)
-                # As a move has been generated for this cell we should only consider the next cell as a potential move.
-                # We've also found one of the potential moves thus we have one less to check, so move onto the next potential move.
-                nextCellToCheck = nextCellToCheck + 1
-                movesLeftToCheck = movesLeftToCheck - 1
-                break
-
-    return potentialMoveOutcomeGrids
-
-
-
-
