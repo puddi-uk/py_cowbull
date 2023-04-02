@@ -75,25 +75,19 @@ def getBlankCells(grid):
     return blankCells
 
 
-# Iterate through the rows, generating the array of indexes in each, return the one containing the indexInRow.
 def getRowContainingCell(grid, targetCell):
     for i in range(GRID_SIDE_LENGTH):
         rowStartIndex = i * GRID_SIDE_LENGTH
-        # Note: Range will effectively apply a -1 to the GRID_SIDE_LENGTH implicitly, we don't need to account for it.
-        cellsInRow = grid[rowStartIndex : rowStartIndex + GRID_SIDE_LENGTH : 1]
-        if (targetCell in cellsInRow) :
-            return list(cellsInRow)
-        else:
-            return []
+        rowIndexes = list(range(rowStartIndex, rowStartIndex + GRID_SIDE_LENGTH))
+        if (targetCell in rowIndexes):
+            return grid[rowStartIndex : rowStartIndex + GRID_SIDE_LENGTH : 1]
 
 
 def getColContainingCell(grid, targetCell):
     for colStartIndex in range(GRID_SIDE_LENGTH):
-        cellsInCol = grid[colStartIndex : GRID_CELL_COUNT : GRID_SIDE_LENGTH]
-        if targetCell in cellsInCol:
-            return list(cellsInCol)
-        else:
-            return []
+        colIndexes = list(range(colStartIndex, GRID_CELL_COUNT, GRID_SIDE_LENGTH))
+        if (targetCell in colIndexes):
+            return grid[colStartIndex : GRID_CELL_COUNT: GRID_SIDE_LENGTH]
 
 
 def getTLBRDiagContainingCell(grid, targetCell):

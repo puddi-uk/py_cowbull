@@ -95,7 +95,7 @@ def scoreLine(line):
 
 def resultsInComputerVictory(lineTotals):
     for i in range(len(lineTotals)):
-        if (lineTotals[i] + COMPUTER_CELL_VALUE == COMPUTER_WIN_LINE_VALUE):
+        if (lineTotals[i] == COMPUTER_WIN_LINE_VALUE):
             return True
     return False
 
